@@ -167,8 +167,8 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            index = np.argsort(dists[i,:])[0:k]
-            y_pred[i] = np.bincount(self.y_train[index]).argmax()
+            index = np.argsort(dists[i,:])
+            y_pred[i] = np.bincount(self.y_train[index][0:k]).argmax()
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
