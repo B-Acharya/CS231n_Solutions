@@ -26,6 +26,7 @@ def svm_loss_naive(W, X, y, reg):
     # compute the loss and the gradient
     num_classes = W.shape[1]
     num_train = X.shape[0]
+    grad = np.zeros(W.shape)
     loss = 0.0
     for i in range(num_train):
         scores = X[i].dot(W)
@@ -36,14 +37,15 @@ def svm_loss_naive(W, X, y, reg):
             margin = scores[j] - correct_class_score + 1 # note delta = 1
             if margin > 0:
                 loss += margin
-
+                grad[:,y[i]] += -X[i]
+                grad[:,j] += X[i] 
     # Right now the loss is a sum over all training examples, but we want it
     # to be an average instead so we divide by num_train.
     loss /= num_train
 
     # Add regularization to the loss.
     loss += reg * np.sum(W * W)
-
+    grad /= num_train
     #############################################################################
     # TODO:                                                                     #
     # Compute the gradient of the loss function and store it dW.                #
@@ -53,11 +55,9 @@ def svm_loss_naive(W, X, y, reg):
     # code above to compute the gradient.                                       #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
+    dW = grad + 2*reg*(W)
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    
+
     return loss, dW
 
 
@@ -77,9 +77,16 @@ def svm_loss_vectorized(W, X, y, reg):
     # result in loss.                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
+    #claculate the dot product
+    score    = X.dot(W) 
+    #take out the correct scores form the list
+    y_i = score[np.arange(score.shape[0]),y]
+    #calcualte the margins for each sample
+    margins = np.maximum(0,score - np.matrix(y_i).T +1)
+    #delete the margins where y is the true lable
+    margins[np.arange(score.shape[0]),y]=0
+    loss = np.mean(np.sum(margins,axis=1))
+    loss += 0.5 * reg * np.sum(W.T .dot(W))
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     #############################################################################
@@ -92,9 +99,18 @@ def svm_loss_vectorized(W, X, y, reg):
     # loss.                                                                     #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
+    #margins already has all the scores
+    binary = margins
+    #set everthing to 1 or o
+    binary[margins > 0] = 1
+    #calculate the score when j=y_i this is used to replace the positions
+    row_sum = np.sum(binary, axis=1)
+    #reaplce the scores
+    binary[np.arange(X.shape[0]), y] = -row_sum.T
+    #multiply with x to get the dw
+    dW = np.dot(X.T, binary)
+    dW /= X.shape[0]
+    dW += reg*W
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW

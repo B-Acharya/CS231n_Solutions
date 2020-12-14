@@ -103,8 +103,8 @@ class KNearestNeighbor(object):
             #print(X.shape,self.X_train.shape)
             dists[i,:] = np.sqrt(np.sum(np.square(self.X_train[:]-X[i],axis = 1))
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        
         return dists
-
     def compute_distances_no_loops(self, X):
         """
         Compute the distaUce between each test point in X and each training point
