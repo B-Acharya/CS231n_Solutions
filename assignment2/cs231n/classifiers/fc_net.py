@@ -55,7 +55,10 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        self.params['W1'] = np.random.normal(loc=0.0,scale =weight_scale,size=(input_dim,hidden_dim))
+        self.params['b1'] = np.zeros(shape=(hidden_dim))
+        self.params['W2'] = np.random.normal(loc=0.0,scale = weight_scale,size=(hidden_dim,num_classes))
+        self.params['b2'] = np.zeros(shape=(num_classes))
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -88,7 +91,12 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        out ,af_cache_1 = affine_forward(X,self.params['W1'],self.params['b1'])
+        out ,relu_cache_1 = relu_forward(out)
+        scores ,af_cache_2 = affine_forward(out,self.params['W2'],self.params['b2'])
+        
+
+        
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -112,7 +120,16 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        loss, dscores = softmax_loss(scores,y)
+        loss += np.sum(0.5*self.reg*self.params["W1"]*self.params["W1"]) + np.sum(0.5*self.reg*self.params["W2"]*self.params["W2"])
+        dout2, dw2 , db2 = affine_backward(dscores,af_cache_2)
+        dout2 = relu_backward(dout2, relu_cache_1)
+        dout2 , dw1 , db1 = affine_backward(dout2,af_cache_1)
+        grads["W2"] = dw2 + self.reg*self.params["W2"]
+        grads["W1"] = dw1 + self.reg*self.params["W1"]
+        grads["b2"] = db2 
+        grads["b1"] = db1
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -192,7 +209,15 @@ class FullyConnectedNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        for i  in range(num_layers):
+          if i==0:
+            self.params['W1'] = np.random.normal(loc=0.0,scale =weight_scale,size=(input_dim,hidden_dims[i]))
+            self.params['b1'] = np.zeros(shape=(hidden_dim[i]))
+
+          if i==num_layers-1:
+            self.params['W2'] = np.random.normal(loc=0.0,scale = weight_scale,size=(hidden_dim,num_classes))
+            self.params['b2'] = np.zeros(shape=(num_classes))            
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
